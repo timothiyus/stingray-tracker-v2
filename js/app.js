@@ -168,6 +168,8 @@ function load() {
   state.challenges = state.challenges || { completed: {} };
   state.achievements = state.achievements || { unlockedIds: [], unlockedAt: {} };
   state.lastVisit = state.lastVisit || today();
+  // Persist migrated state so downstream readers (including sync) see v2.
+  localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
 }
 
 function save() {
