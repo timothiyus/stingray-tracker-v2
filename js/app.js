@@ -1236,7 +1236,7 @@ function updateSyncUI(user) {
     const verify = $('syncVerifyForm');
     if (form) form.hidden = false;
     if (verify) verify.hidden = true;
-    if (status) status.textContent = 'Sign in to sync across devices. We email you a 6-digit code.';
+    if (status) status.textContent = 'Sign in to sync across devices. We email you a code.';
   }
 }
 
