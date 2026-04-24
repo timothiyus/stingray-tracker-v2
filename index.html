@@ -1,0 +1,484 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+  <meta name="theme-color" content="#0f172a" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+  <meta name="apple-mobile-web-app-title" content="Stingray" />
+  <meta name="description" content="Gamified savings tracker — save for your dream car." />
+  <title>Stingray Tracker</title>
+  <link rel="manifest" href="manifest.json" />
+  <link rel="icon" type="image/svg+xml" href="icon.svg" />
+  <link rel="apple-touch-icon" href="icon.svg" />
+  <link rel="stylesheet" href="css/style.css" />
+</head>
+<body>
+
+  <!-- ── Header ── -->
+  <header class="header">
+    <div class="container header__row">
+      <div class="header__brand">
+        <span class="header__emoji" id="heroEmoji">🏎️</span>
+        <div>
+          <h1 id="goalName">Stingray Tracker</h1>
+          <p class="header__countdown" id="countdown">Your journey starts now</p>
+        </div>
+      </div>
+      <div class="header__stats">
+        <div class="header__stat"><p class="label">Saved</p><p class="value" id="headerSaved">$0</p></div>
+        <div class="header__stat"><p class="label">To Go</p><p class="value" id="headerRemaining">$20,000</p></div>
+      </div>
+    </div>
+  </header>
+
+  <!-- ── Tabs ── -->
+  <nav class="tabs" id="tabsNav">
+    <div class="container tabs__list">
+      <button class="tabs__btn active" data-tab="today">📅 Today</button>
+      <button class="tabs__btn" data-tab="calendar">🗓️ Calendar</button>
+      <button class="tabs__btn" data-tab="stats">📊 Stats</button>
+      <button class="tabs__btn" data-tab="subs">🔄 Subs</button>
+      <button class="tabs__btn" data-tab="reports">📈 Reports</button>
+      <button class="tabs__btn" data-tab="achievements">🏆 Wins</button>
+      <button class="tabs__btn" data-tab="settings">⚙️ Settings</button>
+    </div>
+  </nav>
+
+  <main class="main">
+    <div class="container">
+
+      <!-- ── Hero (always visible) ── -->
+      <section class="hero-card">
+        <div class="journey">
+          <div class="journey__stage" data-stage="0"><span class="journey__emoji">🔒</span><p>Start</p></div>
+          <div class="journey__stage" data-stage="5000"><span class="journey__emoji">🚗</span><p>$5K</p></div>
+          <div class="journey__stage" data-stage="10000"><span class="journey__emoji">🏎️</span><p>$10K</p></div>
+          <div class="journey__stage" data-stage="15000"><span class="journey__emoji">⚡</span><p>$15K</p></div>
+          <div class="journey__stage" data-stage="20000"><span class="journey__emoji">🏆</span><p>$20K</p></div>
+        </div>
+
+        <div class="progress-section">
+          <div class="progress-section__header">
+            <div><p class="progress-section__label">Total Saved</p><p class="progress-section__value" id="totalSaved">$0</p></div>
+            <div><p class="progress-section__label">Goal</p><p class="progress-section__value" id="goalAmount">$20,000</p></div>
+          </div>
+          <div class="progress-bar">
+            <div class="progress-bar__fill" id="progressBarFill"></div>
+            <span class="progress-bar__text" id="progressPercent">0%</span>
+          </div>
+        </div>
+
+        <div class="milestone-grid">
+          <div class="milestone-card">
+            <span class="milestone-card__emoji" id="currentEmoji">🔒</span>
+            <p class="milestone-card__label">Current</p>
+            <h3 id="currentMilestone">Start</h3>
+            <p class="milestone-card__desc" id="currentDesc">Begin your journey</p>
+          </div>
+          <div class="milestone-card" id="nextMilestoneCard">
+            <span class="milestone-card__emoji" id="nextEmoji">🚗</span>
+            <p class="milestone-card__label">Next</p>
+            <h3 id="nextMilestone">$5,000</h3>
+            <p class="milestone-card__desc" id="nextAmount">$5,000 to go</p>
+          </div>
+        </div>
+      </section>
+
+      <!-- ═══════════════════════════════════════ -->
+      <!-- TAB: TODAY                              -->
+      <!-- ═══════════════════════════════════════ -->
+      <section class="tab" data-pane="today">
+
+        <!-- Projected countdown -->
+        <div class="card countdown-card">
+          <div>
+            <p class="countdown-card__label">Projected purchase</p>
+            <p class="countdown-card__date" id="projDateBig">—</p>
+          </div>
+          <div>
+            <p class="countdown-card__label">Days remaining</p>
+            <p class="countdown-card__days" id="projDaysBig">—</p>
+          </div>
+        </div>
+
+        <!-- XP card -->
+        <div class="card xp-card">
+          <div class="xp-header">
+            <div><p class="xp-label">Level <span id="currentLevel">1</span></p><p class="xp-text" id="nextXPLevel">1,000 XP to next level</p></div>
+            <p class="xp-total" id="totalXP">0 XP</p>
+          </div>
+          <div class="xp-bar">
+            <div class="xp-bar__fill" id="xpBarFill"></div>
+            <span class="xp-bar__text" id="xpPercent">0%</span>
+          </div>
+        </div>
+
+        <!-- Daily challenge -->
+        <div class="card challenge-card" id="challengeCard">
+          <div class="challenge-card__head">
+            <span class="challenge-card__icon">🎯</span>
+            <div>
+              <p class="challenge-card__label">Today's Challenge</p>
+              <h3 id="challengeName">—</h3>
+            </div>
+            <span class="challenge-card__xp" id="challengeXP">+0 XP</span>
+          </div>
+          <p class="challenge-card__desc" id="challengeDesc">—</p>
+          <p class="challenge-card__status" id="challengeStatus">In progress</p>
+        </div>
+
+        <!-- Today's Summary -->
+        <div class="card">
+          <h2>Today</h2>
+          <div class="status-banner" id="statusBanner">
+            <p class="status-banner__title" id="statusTitle">✅ On track today</p>
+            <p class="status-banner__text" id="statusText">Stay focused.</p>
+          </div>
+          <div class="stats-grid">
+            <div class="stat-box"><p class="stat-box__label">Allowance</p><p class="stat-box__value" id="dailyAllowance">$0.00</p></div>
+            <div class="stat-box"><p class="stat-box__label">Spent</p><p class="stat-box__value" id="spentToday">$0.00</p></div>
+            <div class="stat-box"><p class="stat-box__label">Remaining</p><p class="stat-box__value" id="remaining">$0.00</p></div>
+            <div class="stat-box"><p class="stat-box__label">Progress</p><p class="stat-box__value" id="dailyProgress">0%</p></div>
+          </div>
+          <div class="progress-bar progress-bar--large"><div class="progress-bar__fill" id="dailyBarFill"></div></div>
+        </div>
+
+        <!-- Mini week strip -->
+        <div class="card">
+          <h2>This Week</h2>
+          <div class="strip" id="weekStrip"></div>
+          <div class="weekly-tracker">
+            <div class="weekly-header">
+              <div><p class="stat-box__label">Allocation</p><p class="stat-box__value" id="weeklyAllocation">$0.00</p></div>
+              <div><p class="stat-box__label">Spent</p><p class="stat-box__value" id="weeklySpent">$0.00</p></div>
+              <div><p class="stat-box__label">Remaining</p><p class="stat-box__value" id="weeklyRemaining">$0.00</p></div>
+            </div>
+            <div class="progress-bar"><div class="progress-bar__fill" id="weeklyBarFill"></div><span class="progress-bar__text" id="weeklyPercent">0%</span></div>
+          </div>
+        </div>
+
+        <!-- Log spending -->
+        <div class="card">
+          <h2>Log Activity</h2>
+          <div class="spending-buttons">
+            <button class="btn btn--warning" id="toggleSpend">➕ Spending</button>
+            <button class="btn btn--secondary" id="toggleAvoided">✨ Avoided</button>
+            <button class="btn btn--success" id="toggleSavings">💰 Extra Savings</button>
+            <button class="btn btn--error" id="toggleWithdraw">🏦 Withdraw</button>
+          </div>
+
+          <form id="spendForm" class="form hidden">
+            <div class="form__row">
+              <div class="form__group"><label>Amount ($)</label><input type="number" id="spendAmount" step="0.01" placeholder="0.00" required /></div>
+              <div class="form__group"><label>Category</label><select id="category" required></select></div>
+            </div>
+            <div class="form__row">
+              <div class="form__group"><label>Date</label><input type="date" id="spendDate" required /></div>
+              <div class="form__group"><label>Note (optional)</label><input type="text" id="spendNote" placeholder="e.g., coffee" /></div>
+            </div>
+            <button type="submit" class="btn btn--warning">Log Spending</button>
+          </form>
+
+          <form id="avoidedForm" class="form hidden">
+            <div class="form__row">
+              <div class="form__group"><label>What did you avoid?</label><input type="text" id="avoidedItem" placeholder="e.g., takeout" required /></div>
+              <div class="form__group"><label>Estimated cost ($)</label><input type="number" id="avoidedCost" step="0.01" placeholder="0.00" required /></div>
+            </div>
+            <div class="form__group"><label>Date</label><input type="date" id="avoidedDate" required /></div>
+            <button type="submit" class="btn btn--secondary">Log +10 XP</button>
+          </form>
+
+          <form id="savingsForm" class="form hidden">
+            <div class="form__row">
+              <div class="form__group"><label>Dollars</label><input type="number" id="extraDollars" step="1" placeholder="0" /></div>
+              <div class="form__group"><label>Cents</label><input type="number" id="extraCents" step="1" min="0" max="99" placeholder="0" /></div>
+            </div>
+            <div class="form__group"><label>Date</label><input type="date" id="savingsDate" required /></div>
+            <button type="submit" class="btn btn--success">Add Extra Savings</button>
+          </form>
+
+          <form id="withdrawForm" class="form hidden">
+            <div class="form__row">
+              <div class="form__group"><label>Amount ($)</label><input type="number" id="withdrawAmount" step="0.01" placeholder="0.00" required /></div>
+              <div class="form__group"><label>Date</label><input type="date" id="withdrawDate" required /></div>
+            </div>
+            <div class="form__group"><label>Reason (optional)</label><input type="text" id="withdrawReason" placeholder="e.g., emergency" /></div>
+            <button type="submit" class="btn btn--error">Withdraw from Savings</button>
+          </form>
+
+          <div id="transactionsList" class="transactions"></div>
+        </div>
+
+        <!-- Quote card -->
+        <div class="card quote-card">
+          <p class="quote-card__text" id="quoteText">—</p>
+          <p class="quote-card__by" id="quoteBy">—</p>
+        </div>
+
+      </section>
+
+      <!-- ═══════════════════════════════════════ -->
+      <!-- TAB: CALENDAR                           -->
+      <!-- ═══════════════════════════════════════ -->
+      <section class="tab" data-pane="calendar" hidden>
+        <div class="card">
+          <div class="cal-header">
+            <button class="btn btn--ghost" id="calPrev" aria-label="Previous month">◀</button>
+            <h2 id="calTitle">—</h2>
+            <button class="btn btn--ghost" id="calNext" aria-label="Next month">▶</button>
+            <button class="btn btn--primary cal-today-btn" id="calToday">Today</button>
+          </div>
+          <div class="cal-legend">
+            <span><i class="swatch swatch--zero"></i>No-spend</span>
+            <span><i class="swatch swatch--under"></i>Under</span>
+            <span><i class="swatch swatch--over"></i>Over</span>
+            <span><i class="swatch swatch--empty"></i>No data</span>
+          </div>
+          <div class="cal-grid" id="calGrid"></div>
+          <p class="cal-hint">Tap any day to view or add transactions.</p>
+        </div>
+      </section>
+
+      <!-- ═══════════════════════════════════════ -->
+      <!-- TAB: STATS                              -->
+      <!-- ═══════════════════════════════════════ -->
+      <section class="tab" data-pane="stats" hidden>
+        <div class="card">
+          <h2>Streaks</h2>
+          <div class="two-col">
+            <div class="stat-card"><p class="stat-card__label">🔥 Current Streak</p><p class="stat-card__value" id="currentStreak">0</p><p class="stat-card__text">Days under budget in a row</p></div>
+            <div class="stat-card"><p class="stat-card__label">🏅 Longest Streak</p><p class="stat-card__value" id="longestStreak">0</p><p class="stat-card__text">Best run yet</p></div>
+          </div>
+        </div>
+
+        <div class="card">
+          <h2>30-Day Trend</h2>
+          <svg id="trendChart" viewBox="0 0 600 160" preserveAspectRatio="none" class="trend-chart"></svg>
+          <p class="cal-hint">Orange line = your daily allowance. Bars are daily spending.</p>
+        </div>
+
+        <div class="card">
+          <h2>This Week</h2>
+          <div class="stats-grid">
+            <div class="stat-box"><p class="stat-box__label">Days Under Budget</p><p class="stat-box__value" id="weekUnderBudget">0/7</p></div>
+            <div class="stat-box"><p class="stat-box__label">Week Spent</p><p class="stat-box__value" id="weekSpent">$0.00</p></div>
+            <div class="stat-box"><p class="stat-box__label">Daily Avg</p><p class="stat-box__value" id="weekAvg">$0.00</p></div>
+            <div class="stat-box"><p class="stat-box__label">Status</p><p class="stat-box__value" id="weekStatus">✅</p></div>
+          </div>
+        </div>
+
+        <div class="card">
+          <h2>This Month</h2>
+          <div class="stats-grid">
+            <div class="stat-box"><p class="stat-box__label">Spent</p><p class="stat-box__value" id="monthSpent">$0.00</p></div>
+            <div class="stat-box"><p class="stat-box__label">Saved</p><p class="stat-box__value" id="monthSaved">$0.00</p></div>
+            <div class="stat-box"><p class="stat-box__label">Extra Savings</p><p class="stat-box__value" id="monthAdditionalSavings">$0.00</p></div>
+            <div class="stat-box"><p class="stat-box__label">Target</p><p class="stat-box__value" id="targetSavings">$225.00</p></div>
+          </div>
+        </div>
+
+        <div class="card">
+          <h2>Budget Breakdown</h2>
+          <div class="breakdown">
+            <div class="breakdown__row"><span>Monthly Budget</span><span class="breakdown__value" id="monthlyBudget">$400.00</span></div>
+            <div class="breakdown__divider"></div>
+            <div class="breakdown__row"><span>Savings Target</span><span class="breakdown__value is-pos" id="targetMonthly">-$225.00</span></div>
+            <div class="breakdown__divider"></div>
+            <div class="breakdown__row"><span>Subscriptions</span><span class="breakdown__value is-neg" id="subTotal">-$0.00</span></div>
+            <div class="breakdown__divider"></div>
+            <div class="breakdown__row"><span>Available</span><span class="breakdown__value" id="availableSpending">$175.00</span></div>
+            <div class="breakdown__row breakdown__row--indent"><span>Daily Allowance</span><span class="breakdown__value" id="dailyAllowanceBreakdown">$5.65</span></div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ═══════════════════════════════════════ -->
+      <!-- TAB: SUBSCRIPTIONS                      -->
+      <!-- ═══════════════════════════════════════ -->
+      <section class="tab" data-pane="subs" hidden>
+        <div class="card">
+          <h2>Subscription Manager</h2>
+          <div class="summary-box">
+            <p class="summary-box__label">Monthly Impact (equivalent)</p>
+            <p class="summary-box__value" id="subMonthlyTotal">$0.00</p>
+            <p class="summary-box__text">Daily impact: <strong id="subDailyImpact">$0.00</strong></p>
+          </div>
+          <button class="btn btn--primary" id="toggleSub">+ Add Subscription</button>
+          <form id="subForm" class="form hidden">
+            <div class="form__row">
+              <div class="form__group"><label>Name</label><input type="text" id="subName" placeholder="e.g., Netflix" required /></div>
+              <div class="form__group"><label>Amount ($)</label><input type="number" id="subAmount" step="0.01" placeholder="0.00" required /></div>
+            </div>
+            <div class="form__row">
+              <div class="form__group"><label>Billing Day</label><select id="subDay" required></select></div>
+              <div class="form__group"><label>Category</label><select id="subCategory" required></select></div>
+            </div>
+            <div class="form__row">
+              <div class="form__group"><label>Cycle</label><select id="subBillingCycle"><option value="monthly">Monthly</option><option value="yearly">Yearly</option></select></div>
+              <div class="form__group" id="billingMonthGroup" style="display:none"><label>Billing Month</label><select id="subBillingMonth"></select></div>
+            </div>
+            <label class="checkbox"><input type="checkbox" id="subActive" checked /><span>Active</span></label>
+            <button type="submit" class="btn btn--primary">Add Subscription</button>
+          </form>
+          <div id="subscriptionsList" class="subscriptions-list"></div>
+        </div>
+      </section>
+
+      <!-- ═══════════════════════════════════════ -->
+      <!-- TAB: REPORTS                            -->
+      <!-- ═══════════════════════════════════════ -->
+      <section class="tab" data-pane="reports" hidden>
+        <div class="card">
+          <h2>Reports</h2>
+          <div class="form__row">
+            <div class="form__group"><label>Month</label><select id="reportMonth"></select></div>
+            <div class="form__group"><label>Year</label><select id="reportYear"></select></div>
+          </div>
+        </div>
+        <div class="card">
+          <h2>Spending by Category</h2>
+          <div id="monthSubscriptions"></div>
+          <div id="categoryBreakdown" class="category-breakdown"></div>
+        </div>
+        <div class="card">
+          <h2>Monthly Summary</h2>
+          <div class="two-col">
+            <div class="stat-card"><p class="stat-card__label">Monthly Average Spend</p><p class="stat-card__value" id="monthlyAvg">$0.00</p><p class="stat-card__text" id="monthsOfData">—</p></div>
+            <div class="stat-card"><p class="stat-card__label">Projected Savings</p><p class="stat-card__value" id="projectedSavings">$0.00</p><p class="stat-card__text">Per month</p></div>
+            <div class="stat-card"><p class="stat-card__label">Avg Extra Savings</p><p class="stat-card__value" id="avgAdditionalSavings">$0.00</p><p class="stat-card__text">Per month</p></div>
+            <div class="stat-card"><p class="stat-card__label">Total Saved</p><p class="stat-card__value" id="totalAdditionalSavings">$0.00</p><p class="stat-card__text">All time</p></div>
+          </div>
+        </div>
+        <div class="card" id="projectionCard">
+          <h2>🎯 Projected Purchase Date</h2>
+          <div class="projection">
+            <div><p class="projection__label">At current rate</p><p class="projection__date" id="projectedDate">—</p></div>
+            <div><p class="projection__label">Time remaining</p><p class="projection__months" id="monthsUntil">—</p></div>
+          </div>
+          <p class="projection__tip">💡 Cut monthly spending to accelerate your timeline.</p>
+        </div>
+      </section>
+
+      <!-- ═══════════════════════════════════════ -->
+      <!-- TAB: ACHIEVEMENTS                       -->
+      <!-- ═══════════════════════════════════════ -->
+      <section class="tab" data-pane="achievements" hidden>
+        <div class="card">
+          <h2>Your Progress</h2>
+          <div class="achievement-stats">
+            <div class="achievement-stat"><p class="achievement-stat__emoji">🏆</p><p class="achievement-stat__label">Achievements</p><p class="achievement-stat__count" id="achievementCount">0/12</p></div>
+            <div class="achievement-stat"><p class="achievement-stat__emoji">💎</p><p class="achievement-stat__label">Milestones</p><p class="achievement-stat__count" id="milestoneCount">0/6</p></div>
+            <div class="achievement-stat"><p class="achievement-stat__emoji">💰</p><p class="achievement-stat__label">Total Saved</p><p class="achievement-stat__count" id="achievementTotal">$0</p></div>
+          </div>
+        </div>
+        <div class="card">
+          <h2>Badges</h2>
+          <div id="achievementsList" class="achievements-grid"></div>
+        </div>
+        <div class="card">
+          <h2>Saving Milestones</h2>
+          <div id="milestonesList" class="milestones-list"></div>
+        </div>
+      </section>
+
+      <!-- ═══════════════════════════════════════ -->
+      <!-- TAB: SETTINGS                           -->
+      <!-- ═══════════════════════════════════════ -->
+      <section class="tab" data-pane="settings" hidden>
+        <div class="card">
+          <h2>Goals & Budget</h2>
+          <form id="settingsForm" class="settings-form">
+            <div class="form__row">
+              <div class="form__group"><label>Goal Name</label><input type="text" id="setGoalName" placeholder="Corvette Stingray" /></div>
+              <div class="form__group"><label>Goal Emoji</label><input type="text" id="setGoalEmoji" maxlength="4" placeholder="🏎️" /></div>
+            </div>
+            <div class="form__row">
+              <div class="form__group"><label>Goal Amount ($)</label><input type="number" id="setGoal" step="100" /></div>
+              <div class="form__group"><label>Start Date</label><input type="date" id="setStartDate" /></div>
+            </div>
+            <div class="form__row">
+              <div class="form__group"><label>Monthly Budget ($)</label><input type="number" id="setBudget" step="1" /></div>
+              <div class="form__group"><label>Monthly Savings Target ($)</label><input type="number" id="setTarget" step="1" /></div>
+            </div>
+            <button type="submit" class="btn btn--primary">Save Settings</button>
+          </form>
+        </div>
+
+        <div class="card">
+          <h2>Backup & Restore</h2>
+          <p class="settings-hint">Your data lives in this browser. Export it regularly so you never lose progress.</p>
+          <div class="settings-actions">
+            <button class="btn btn--secondary" id="exportBtn">⬇️ Export JSON</button>
+            <label class="btn btn--secondary import-label">
+              ⬆️ Import JSON
+              <input type="file" id="importInput" accept="application/json" hidden />
+            </label>
+          </div>
+        </div>
+
+        <div class="card reset-card">
+          <h2 style="color:#ef4444">Danger Zone</h2>
+          <p class="settings-hint">Permanently delete all transactions, subscriptions, achievements, and XP.</p>
+          <button id="resetDataBtn" class="btn btn--danger">🔄 Reset All Data</button>
+        </div>
+
+        <div class="card">
+          <h2>About</h2>
+          <p class="settings-hint">Stingray Tracker v2 — built for your journey.</p>
+          <p class="settings-hint">Install on your phone: Safari → Share → <strong>Add to Home Screen</strong>. On Chrome/Edge: menu → <strong>Install App</strong>.</p>
+        </div>
+      </section>
+
+    </div>
+  </main>
+
+  <!-- ── Day Detail Modal ── -->
+  <div class="modal" id="dayModal" hidden>
+    <div class="modal__panel">
+      <header class="modal__head">
+        <h2 id="modalDate">Date</h2>
+        <button class="btn btn--ghost" id="modalClose" aria-label="Close">✕</button>
+      </header>
+      <div class="modal__body">
+        <div class="stats-grid">
+          <div class="stat-box"><p class="stat-box__label">Spent</p><p class="stat-box__value" id="modalSpent">$0.00</p></div>
+          <div class="stat-box"><p class="stat-box__label">Allowance</p><p class="stat-box__value" id="modalAllowance">$0.00</p></div>
+          <div class="stat-box"><p class="stat-box__label">Extra Saved</p><p class="stat-box__value" id="modalExtra">$0.00</p></div>
+          <div class="stat-box"><p class="stat-box__label">Withdrawn</p><p class="stat-box__value" id="modalWithd">$0.00</p></div>
+        </div>
+        <p class="modal__status" id="modalStatus">—</p>
+
+        <h3 class="modal__section-title">Transactions</h3>
+        <div id="modalTxList" class="transactions"></div>
+
+        <h3 class="modal__section-title">Quick Add</h3>
+        <form id="modalAddForm" class="form">
+          <div class="form__row">
+            <div class="form__group"><label>Type</label><select id="modalType">
+              <option value="spending">Spending</option>
+              <option value="savings">Extra Savings</option>
+              <option value="withdrawal">Withdrawal</option>
+              <option value="avoided">Avoided Purchase</option>
+            </select></div>
+            <div class="form__group"><label>Amount ($)</label><input type="number" id="modalAmount" step="0.01" placeholder="0.00" required /></div>
+          </div>
+          <div class="form__row">
+            <div class="form__group"><label>Category</label><select id="modalCat"></select></div>
+            <div class="form__group"><label>Date</label><input type="date" id="modalDatePick" required /></div>
+          </div>
+          <div class="form__group"><label>Note</label><input type="text" id="modalNote" placeholder="optional" /></div>
+          <button type="submit" class="btn btn--primary">Add to This Day</button>
+        </form>
+      </div>
+    </div>
+  </div>
+
+  <footer class="footer">
+    <p>Dream it. Track it. Own it. 🏎️</p>
+  </footer>
+
+  <script src="js/app.js"></script>
+</body>
+</html>
