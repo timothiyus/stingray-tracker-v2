@@ -172,6 +172,14 @@ function load() {
 
 function save() {
   localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
+  if (window.StingraySync) window.StingraySync.pushState(state);
+  render();
+}
+
+function applyRemoteState(remote) {
+  if (!remote || typeof remote !== 'object') return;
+  state = migrate(remote);
+  localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
   render();
 }
 
@@ -1209,6 +1217,57 @@ function registerSW() {
   }
 }
 
+// ── Sync UI ──────────────────────────────────────────────────────
+function updateSyncUI(user) {
+  const signedOut = $('syncSignedOut');
+  const signedIn  = $('syncSignedIn');
+  const status    = $('syncStatus');
+  if (user) {
+    if (signedOut) signedOut.hidden = true;
+    if (signedIn)  signedIn.hidden  = false;
+    set('syncUserEmail', user.email);
+    if (status) status.textContent = 'Synced across all your signed-in devices.';
+  } else {
+    if (signedOut) signedOut.hidden = false;
+    if (signedIn)  signedIn.hidden  = true;
+    if (status) status.textContent = 'Sign in to sync your data across devices. No password — we email you a magic link.';
+  }
+}
+
+function setupSync() {
+  if (!window.StingraySync) return;
+
+  $('syncSignInForm')?.addEventListener('submit', async e => {
+    e.preventDefault();
+    const email = $('syncEmail')?.value.trim();
+    if (!email) return;
+    const btn = e.target.querySelector('button[type="submit"]');
+    const orig = btn.textContent;
+    btn.disabled = true;
+    btn.textContent = 'Sending…';
+    try {
+      await window.StingraySync.signIn(email);
+      alert(`Magic link sent to ${email}. Open it on this device to finish signing in.`);
+      e.target.reset();
+    } catch (err) {
+      alert('Sign-in failed: ' + (err?.message || err));
+    } finally {
+      btn.disabled = false;
+      btn.textContent = orig;
+    }
+  });
+
+  $('syncSignOutBtn')?.addEventListener('click', async () => {
+    if (!confirm('Sign out of this device? Your data stays on other signed-in devices and in the cloud.')) return;
+    await window.StingraySync.signOut();
+  });
+
+  window.StingraySync.init({
+    onRemoteState: remote => applyRemoteState(remote),
+    onAuthChange: user => updateSyncUI(user),
+  });
+}
+
 // ── Init ─────────────────────────────────────────────────────────
 document.addEventListener('DOMContentLoaded', () => {
   load();
@@ -1217,4 +1276,5 @@ document.addEventListener('DOMContentLoaded', () => {
   checkAchievements();
   render();
   registerSW();
+  setupSync();
 });

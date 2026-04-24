@@ -13,6 +13,8 @@
   <link rel="icon" type="image/svg+xml" href="icon.svg" />
   <link rel="apple-touch-icon" href="icon.svg" />
   <link rel="stylesheet" href="css/style.css" />
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js" defer></script>
+  <script src="js/sync.js" defer></script>
 </head>
 <body>
 
@@ -404,6 +406,25 @@
             </div>
             <button type="submit" class="btn btn--primary">Save Settings</button>
           </form>
+        </div>
+
+        <div class="card">
+          <h2>Cloud Sync</h2>
+          <p class="settings-hint" id="syncStatus">Sign in to sync your data across devices. No password — we email you a magic link.</p>
+          <div id="syncSignedOut">
+            <form id="syncSignInForm" class="form">
+              <div class="form__group">
+                <label>Email</label>
+                <input type="email" id="syncEmail" placeholder="you@example.com" required />
+              </div>
+              <button type="submit" class="btn btn--primary">📧 Send magic link</button>
+            </form>
+          </div>
+          <div id="syncSignedIn" hidden>
+            <p class="settings-hint">Signed in as <strong id="syncUserEmail"></strong></p>
+            <p class="settings-hint" id="syncLastSync">Last synced: just now</p>
+            <button id="syncSignOutBtn" class="btn btn--secondary">Sign out of this device</button>
+          </div>
         </div>
 
         <div class="card">
