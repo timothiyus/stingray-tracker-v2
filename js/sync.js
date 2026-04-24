@@ -72,7 +72,16 @@
     const redirectTo = window.location.origin + window.location.pathname;
     const { error } = await getClient().auth.signInWithOtp({
       email,
-      options: { emailRedirectTo: redirectTo },
+      options: { emailRedirectTo: redirectTo, shouldCreateUser: true },
+    });
+    if (error) throw error;
+  }
+
+  async function verifyCode(email, token) {
+    const { error } = await getClient().auth.verifyOtp({
+      email,
+      token: token.replace(/\s+/g, ''),
+      type: 'email',
     });
     if (error) throw error;
   }
@@ -138,5 +147,5 @@
       .subscribe();
   }
 
-  window.StingraySync = { init, signIn, signOut, pushState, getUser };
+  window.StingraySync = { init, signIn, verifyCode, signOut, pushState, getUser };
 })();

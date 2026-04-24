@@ -1,5 +1,5 @@
 /* Stingray Tracker — service worker (offline shell cache) */
-const CACHE = 'stingray-v3-sync';
+const CACHE = 'stingray-v4-otp';
 const SHELL = [
   './',
   './index.html',

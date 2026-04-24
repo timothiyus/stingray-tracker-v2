@@ -1232,31 +1232,83 @@ function updateSyncUI(user) {
   } else {
     if (signedOut) signedOut.hidden = false;
     if (signedIn)  signedIn.hidden  = true;
-    if (status) status.textContent = 'Sign in to sync your data across devices. No password — we email you a magic link.';
+    const form = $('syncSignInForm');
+    const verify = $('syncVerifyForm');
+    if (form) form.hidden = false;
+    if (verify) verify.hidden = true;
+    if (status) status.textContent = 'Sign in to sync across devices. We email you a 6-digit code.';
   }
 }
 
 function setupSync() {
   if (!window.StingraySync) return;
 
-  $('syncSignInForm')?.addEventListener('submit', async e => {
-    e.preventDefault();
-    const email = $('syncEmail')?.value.trim();
-    if (!email) return;
-    const btn = e.target.querySelector('button[type="submit"]');
+  let pendingEmail = null;
+
+  function showVerifyStep(email) {
+    pendingEmail = email;
+    set('syncVerifyEmail', email);
+    const form = $('syncSignInForm');
+    const verify = $('syncVerifyForm');
+    if (form) form.hidden = true;
+    if (verify) { verify.hidden = false; $('syncCode')?.focus(); }
+  }
+
+  function showEmailStep() {
+    pendingEmail = null;
+    const form = $('syncSignInForm');
+    const verify = $('syncVerifyForm');
+    if (form) form.hidden = false;
+    if (verify) verify.hidden = true;
+    const code = $('syncCode');
+    if (code) code.value = '';
+  }
+
+  async function sendCode(email, btn) {
     const orig = btn.textContent;
     btn.disabled = true;
     btn.textContent = 'Sending…';
     try {
       await window.StingraySync.signIn(email);
-      alert(`Magic link sent to ${email}. Open it on this device to finish signing in.`);
-      e.target.reset();
+      showVerifyStep(email);
     } catch (err) {
-      alert('Sign-in failed: ' + (err?.message || err));
+      alert('Could not send code: ' + (err?.message || err));
     } finally {
       btn.disabled = false;
       btn.textContent = orig;
     }
+  }
+
+  $('syncSignInForm')?.addEventListener('submit', async e => {
+    e.preventDefault();
+    const email = $('syncEmail')?.value.trim();
+    if (!email) return;
+    await sendCode(email, e.target.querySelector('button[type="submit"]'));
+  });
+
+  $('syncVerifyForm')?.addEventListener('submit', async e => {
+    e.preventDefault();
+    const code = $('syncCode')?.value.trim();
+    if (!code || !pendingEmail) return;
+    const btn = e.target.querySelector('button[type="submit"]');
+    const orig = btn.textContent;
+    btn.disabled = true;
+    btn.textContent = 'Verifying…';
+    try {
+      await window.StingraySync.verifyCode(pendingEmail, code);
+      showEmailStep();
+      $('syncEmail').value = '';
+    } catch (err) {
+      alert('Invalid code: ' + (err?.message || err));
+    } finally {
+      btn.disabled = false;
+      btn.textContent = orig;
+    }
+  });
+
+  $('syncResendBtn')?.addEventListener('click', async e => {
+    if (!pendingEmail) return;
+    await sendCode(pendingEmail, e.target);
   });
 
   $('syncSignOutBtn')?.addEventListener('click', async () => {
