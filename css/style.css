@@ -32,7 +32,7 @@
   --shadow-lg: 0 12px 40px rgba(16,185,129,.2), 0 6px 16px rgba(0,0,0,.4);
 }
 
-html { scroll-behavior: smooth; }
+html { scroll-padding-top: 120px; }
 
 body {
   background: linear-gradient(135deg, #0f172a 0%, #1a1d4f 50%, #2d1b69 100%);
