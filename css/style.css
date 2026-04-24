@@ -252,6 +252,27 @@ p { margin: 0; }
 .quote-card__text { font-size: 1rem; color: #e2e8f0; font-style: italic; line-height: 1.5; margin-bottom: .5rem; }
 .quote-card__by { font-size: .85rem; color: var(--muted); }
 
+/* ── Update banner ─────────────────────────────────────────── */
+.update-banner {
+  position: fixed;
+  left: 50%;
+  bottom: max(1rem, env(safe-area-inset-bottom, 1rem));
+  transform: translateX(-50%);
+  background: var(--bg-2);
+  border: 1px solid var(--accent);
+  border-radius: var(--radius-sm);
+  padding: .6rem .75rem .6rem 1rem;
+  display: flex;
+  align-items: center;
+  gap: .75rem;
+  box-shadow: var(--shadow-md);
+  z-index: 200;
+  max-width: calc(100% - 2rem);
+}
+.update-banner[hidden] { display: none; }
+.update-banner__text { font-size: .9rem; font-weight: 600; color: #fff; white-space: nowrap; }
+.update-banner__btn { width: auto !important; padding: .4rem .9rem !important; font-size: .85rem; }
+
 /* ── Status banner ─────────────────────────────────────────── */
 .status-banner {
   background: var(--bg-0); border: 1px solid var(--bg-3);

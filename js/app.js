@@ -1208,15 +1208,75 @@ function setupForms() {
       location.reload();
     }
   });
+
+  // Force update (hard refresh)
+  $('forceUpdateBtn')?.addEventListener('click', async () => {
+    const btn = $('forceUpdateBtn');
+    if (btn) { btn.disabled = true; btn.textContent = '🔄 Refreshing…'; }
+    await hardRefresh();
+  });
+
+  // Apply pending update from banner
+  $('updateApplyBtn')?.addEventListener('click', () => {
+    window.location.reload();
+  });
+
+  setAppVersion();
 }
 
 // ── PWA Service Worker ───────────────────────────────────────────
+let swRegistration = null;
+
 function registerSW() {
-  if ('serviceWorker' in navigator) {
-    window.addEventListener('load', () => {
-      navigator.serviceWorker.register('sw.js').catch(() => {});
-    });
-  }
+  if (!('serviceWorker' in navigator)) return;
+  window.addEventListener('load', async () => {
+    try {
+      const reg = await navigator.serviceWorker.register('sw.js');
+      swRegistration = reg;
+
+      reg.addEventListener('updatefound', () => {
+        const sw = reg.installing;
+        if (!sw) return;
+        sw.addEventListener('statechange', () => {
+          if (sw.state === 'installed' && navigator.serviceWorker.controller) {
+            showUpdateBanner();
+          }
+        });
+      });
+
+      // Auto-check for updates every 60 seconds
+      setInterval(() => { reg.update().catch(() => {}); }, 60000);
+    } catch (e) { /* ignore */ }
+  });
+}
+
+function showUpdateBanner() {
+  const b = $('updateBanner');
+  if (b) b.hidden = false;
+}
+
+async function hardRefresh() {
+  try {
+    if ('serviceWorker' in navigator) {
+      const regs = await navigator.serviceWorker.getRegistrations();
+      await Promise.all(regs.map(r => r.unregister()));
+    }
+    if ('caches' in window) {
+      const keys = await caches.keys();
+      await Promise.all(keys.map(k => caches.delete(k)));
+    }
+  } catch (e) { /* ignore */ }
+  window.location.reload();
+}
+
+async function setAppVersion() {
+  const el = $('appVersion');
+  if (!el || !('caches' in window)) return;
+  try {
+    const keys = await caches.keys();
+    const v = keys.find(k => k.startsWith('stingray-')) || 'unknown';
+    el.textContent = `Version ${v.replace(/^stingray-/, '')}`;
+  } catch (e) { /* ignore */ }
 }
 
 // ── Sync UI ──────────────────────────────────────────────────────

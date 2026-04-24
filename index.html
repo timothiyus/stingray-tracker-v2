@@ -450,6 +450,13 @@
           </div>
         </div>
 
+        <div class="card">
+          <h2>Updates</h2>
+          <p class="settings-hint">The app auto-checks for new versions every minute. A banner will appear when one is ready. Tap below to force a fresh fetch right now.</p>
+          <button id="forceUpdateBtn" class="btn btn--secondary">🔃 Check for Updates</button>
+          <p class="settings-hint" style="margin-top:.75rem"><span id="appVersion">Version —</span></p>
+        </div>
+
         <div class="card reset-card">
           <h2 style="color:#ef4444">Danger Zone</h2>
           <p class="settings-hint">Permanently delete all transactions, subscriptions, achievements, and XP.</p>
@@ -505,6 +512,11 @@
         </form>
       </div>
     </div>
+  </div>
+
+  <div id="updateBanner" class="update-banner" hidden>
+    <span class="update-banner__text">✨ New version ready</span>
+    <button id="updateApplyBtn" class="btn btn--primary update-banner__btn">Refresh</button>
   </div>
 
   <footer class="footer">
